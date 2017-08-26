@@ -1,0 +1,158 @@
+-- --------------------------------------------------------
+-- Host:                         localhost
+-- Versión del servidor:         5.6.24-log - MySQL Community Server (GPL)
+-- SO del servidor:              Win64
+-- HeidiSQL Versión:             9.4.0.5125
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+
+-- Volcando estructura de base de datos para dropbox
+CREATE DATABASE IF NOT EXISTS `dropbox` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `dropbox`;
+
+-- Volcando estructura para tabla dropbox.archivos
+CREATE TABLE IF NOT EXISTS `archivos` (
+  `codi_arch` int(11) NOT NULL AUTO_INCREMENT,
+  `codi_tipo` int(11) DEFAULT NULL,
+  `nomb_arch` varchar(250) DEFAULT NULL,
+  `bina_arch` blob,
+  `exte_arch` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`codi_arch`),
+  KEY `archivos_ibfk_1` (`codi_tipo`),
+  CONSTRAINT `archivos_ibfk_1` FOREIGN KEY (`codi_tipo`) REFERENCES `tipos` (`codi_tipo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.archivos: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `archivos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `archivos` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.libros
+CREATE TABLE IF NOT EXISTS `libros` (
+  `codi_libr` int(11) NOT NULL,
+  `nomb_libr` varchar(250) NOT NULL,
+  `auto_libr` varchar(250) DEFAULT NULL,
+  `gene_libr` varchar(100) DEFAULT NULL,
+  `anio_libr` int(4) DEFAULT NULL,
+  `esta_libr` int(1) DEFAULT NULL,
+  PRIMARY KEY (`codi_libr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.libros: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `libros` DISABLE KEYS */;
+/*!40000 ALTER TABLE `libros` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.listas
+CREATE TABLE IF NOT EXISTS `listas` (
+  `codi_list` int(11) NOT NULL AUTO_INCREMENT,
+  `codi_usua` int(11) DEFAULT NULL,
+  `nomb_list` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`codi_list`),
+  KEY `listas_ibfk_1` (`codi_usua`),
+  CONSTRAINT `listas_ibfk_1` FOREIGN KEY (`codi_usua`) REFERENCES `usuarios` (`codi_usua`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.listas: ~2 rows (aproximadamente)
+/*!40000 ALTER TABLE `listas` DISABLE KEYS */;
+INSERT INTO `listas` (`codi_list`, `codi_usua`, `nomb_list`) VALUES
+	(1, NULL, 'DEMO'),
+	(2, NULL, 'DEMO');
+/*!40000 ALTER TABLE `listas` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.listas_archivos
+CREATE TABLE IF NOT EXISTS `listas_archivos` (
+  `codi_list_arch` int(11) NOT NULL AUTO_INCREMENT,
+  `codi_list` int(11) DEFAULT NULL,
+  `codi_arch` int(11) DEFAULT NULL,
+  PRIMARY KEY (`codi_list_arch`),
+  KEY `codi_list` (`codi_list`),
+  KEY `codi_arch` (`codi_arch`),
+  CONSTRAINT `listas_archivos_ibfk_1` FOREIGN KEY (`codi_list`) REFERENCES `listas` (`codi_list`),
+  CONSTRAINT `listas_archivos_ibfk_2` FOREIGN KEY (`codi_arch`) REFERENCES `archivos` (`codi_arch`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.listas_archivos: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `listas_archivos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `listas_archivos` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.permisos
+CREATE TABLE IF NOT EXISTS `permisos` (
+  `codi_perm` int(11) NOT NULL AUTO_INCREMENT,
+  `nomb_perm` varchar(250) DEFAULT NULL,
+  `desc_perm` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`codi_perm`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.permisos: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `permisos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `permisos` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.permisos_usuarios
+CREATE TABLE IF NOT EXISTS `permisos_usuarios` (
+  `codi_perm_usua` int(11) NOT NULL AUTO_INCREMENT,
+  `codi_usua` int(11) DEFAULT NULL,
+  `codi_perm` int(11) DEFAULT NULL,
+  `esta_perm_usua` int(1) DEFAULT '0',
+  PRIMARY KEY (`codi_perm_usua`),
+  KEY `fk_perm_usua2` (`codi_perm`),
+  KEY `fk_perm_usua1` (`codi_usua`),
+  CONSTRAINT `fk_perm_usua1` FOREIGN KEY (`codi_usua`) REFERENCES `permisos` (`codi_perm`),
+  CONSTRAINT `fk_perm_usua2` FOREIGN KEY (`codi_perm`) REFERENCES `usuarios` (`codi_usua`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.permisos_usuarios: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `permisos_usuarios` DISABLE KEYS */;
+/*!40000 ALTER TABLE `permisos_usuarios` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.prestamos
+CREATE TABLE IF NOT EXISTS `prestamos` (
+  `codi_pres` int(11) NOT NULL,
+  `codi_libr` int(11) DEFAULT NULL,
+  `codi_usua` int(11) DEFAULT NULL,
+  `fech_pres` datetime DEFAULT NULL,
+  `fech_devo` datetime DEFAULT NULL,
+  PRIMARY KEY (`codi_pres`),
+  KEY `fk_pres_libr` (`codi_libr`),
+  KEY `fk_pres_usua` (`codi_usua`),
+  CONSTRAINT `fk_pres_libr` FOREIGN KEY (`codi_libr`) REFERENCES `libros` (`codi_libr`),
+  CONSTRAINT `fk_pres_usua` FOREIGN KEY (`codi_usua`) REFERENCES `usuarios` (`codi_usua`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.prestamos: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `prestamos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `prestamos` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.tipos
+CREATE TABLE IF NOT EXISTS `tipos` (
+  `codi_tipo` int(11) NOT NULL AUTO_INCREMENT,
+  `nomb_tipo` varchar(250) NOT NULL,
+  PRIMARY KEY (`codi_tipo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.tipos: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `tipos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tipos` ENABLE KEYS */;
+
+-- Volcando estructura para tabla dropbox.usuarios
+CREATE TABLE IF NOT EXISTS `usuarios` (
+  `codi_usua` int(11) NOT NULL AUTO_INCREMENT,
+  `nomb_usua` varchar(250) NOT NULL,
+  `acce_usua` varchar(250) NOT NULL,
+  `cont_usua` varchar(250) NOT NULL,
+  PRIMARY KEY (`codi_usua`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+-- Volcando datos para la tabla dropbox.usuarios: ~0 rows (aproximadamente)
+/*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
+INSERT INTO `usuarios` (`codi_usua`, `nomb_usua`, `acce_usua`, `cont_usua`) VALUES
+	(4, 'Juan', 'juanito', '123');
+/*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
